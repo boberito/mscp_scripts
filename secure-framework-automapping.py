@@ -8,15 +8,16 @@ from collections import OrderedDict
 import subprocess
 
 parser = argparse.ArgumentParser(description='Run with no option to generate files to /tmp or point to the mscp directory')
-parser.add_argument("repo", help="Directory mscp is cloned to", type=str)
+parser.add_argument("-r", "--repo", default="/tmp/", help="Directory mscp is cloned to", type=str)
 results = parser.parse_args()
-path = "/tmp"
-print(results)
-print(results.repo)
-if results.repo != "":
-    if path[-1] == "/":
-        del path[-1]
-    path = results.repo + "build"
+
+if results.repo != "/tmp/":
+    if results.repo[-1] != "/":
+        path = results.repo + "/build"
+    else:
+        path = results.repo + "/build"
+else:
+    path = results.repo
 
 
 url = 'https://raw.githubusercontent.com/securecontrolsframework/securecontrolsframework/main/SCF_current.xlsx'
@@ -99,8 +100,9 @@ rite.close()
 
 print("{} and {} written to {}".format(framework_filename + "-mapping.csv", framework_filename + "-missingcontrols.txt", path))
 
-if results.repo != "":
+if results.repo != "/tmp/":
     
     script_path = path[:-6]
+    print(script_path)
     full_path_mapping = os.path.abspath(path_to_framework_mapping)
     subprocess.call(script_path + "/scripts/generate_mapping.py " + full_path_mapping , shell=True)
