@@ -25,7 +25,7 @@ r = requests.get(url, allow_redirects=True)
 
 open(path + '/SCF_current.xlsx', 'wb').write(r.content)
 
-workbook = load_workbook(filename="/tmp/SCF_current.xlsx")
+workbook = load_workbook(filename=path + "SCF_current.xlsx")
 sheet = workbook.active
 
 
