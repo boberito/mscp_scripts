@@ -6,6 +6,7 @@ import os
 import requests
 from collections import OrderedDict
 import subprocess
+import shutil
 
 parser = argparse.ArgumentParser(description='Run with no option to generate files to /tmp or point to the mscp directory')
 parser.add_argument("-r", "--repo", default="/tmp/", help="Directory mscp is cloned to", type=str)
@@ -87,7 +88,7 @@ for key in keys:
         missingcontrols = missingcontrols + key + "\n"
     counter += 1
 
-framework_filename = framework.replace(" ","_")
+framework_filename = framework.replace(" ","_").replace("(","_").replace(")","_")
 path_to_framework_mapping = path + "/" + framework_filename + "-mapping.csv"
 missing_controls = path + "/" + framework_filename + "-missingcontrols.txt"
 with open(path_to_framework_mapping,'w') as rite:
@@ -103,6 +104,25 @@ print("{} and {} written to {}".format(framework_filename + "-mapping.csv", fram
 if results.repo != "/tmp/":
     
     script_path = path[:-6]
-    print(script_path)
     full_path_mapping = os.path.abspath(path_to_framework_mapping)
     subprocess.call(script_path + "/scripts/generate_mapping.py " + full_path_mapping , shell=True)
+    # original = r'original path where the directory is currently stored\directory name'
+    ogpath = script_path + "/build/" + framework + "/rules/"
+    rules_dir = os.listdir(ogpath)
+    for section in rules_dir:
+        original = ogpath + "/" + section
+        target = script_path + "/custom/rules/" + section
+        if os.path.isdir(target):
+            shutil.rmtree(target)
+        fullpath = os.path.abspath(target)
+        shutil.move(original, target)
+        
+    custom_baseline_file = script_path + "/build/" + framework + "/baseline/" + framework.lower() + ".yaml"
+    custom_baseline_file = custom_baseline_file.replace(" ","\ ").replace("(","\(").replace(")","\)")
+    full_path_baseline = os.path.abspath(custom_baseline_file)
+    print(script_path + "/scripts/generate_guidance.py -p -x -s " + full_path_baseline)
+    subprocess.call(script_path + "/scripts/generate_guidance.py -p -x -s " + full_path_baseline , shell=True)
+
+
+
+
