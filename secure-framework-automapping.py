@@ -7,6 +7,7 @@ import requests
 from collections import OrderedDict
 import subprocess
 import shutil
+import re
 
 parser = argparse.ArgumentParser(description='Run with no option to generate files to /tmp or point to the mscp directory')
 parser.add_argument("-r", "--repo", default="/tmp/", help="Directory mscp is cloned to", type=str)
@@ -106,23 +107,50 @@ if results.repo != "/tmp/":
     script_path = path[:-6]
     full_path_mapping = os.path.abspath(path_to_framework_mapping)
     subprocess.call(script_path + "/scripts/generate_mapping.py " + full_path_mapping , shell=True)
-    # original = r'original path where the directory is currently stored\directory name'
     ogpath = script_path + "/build/" + framework + "/rules/"
     rules_dir = os.listdir(ogpath)
     for section in rules_dir:
         original = ogpath + "/" + section
         target = script_path + "/custom/rules/" + section
+    
         if os.path.isdir(target):
-            shutil.rmtree(target)
-        fullpath = os.path.abspath(target)
-        shutil.move(original, target)
+            existing_custom_rules = os.listdir(target)
+            section = str(target).split("/")[-1]
+            matched_rules = []
+            for existing_custom_rule in existing_custom_rules:
+                if existing_custom_rule in os.listdir(ogpath + section):
+                    matched_rules.append(ogpath + section + "/" + existing_custom_rule)
+
+            for new_matched_custom in matched_rules:
+            
+                with open(new_matched_custom) as reader:
+                    new_custom_yam = reader.read()
+            
+                regex = r"(?s)(?<=custom\:).*?(?=tags\:)"
+                ref_match = re.search(regex,new_custom_yam)
+                regex = r"(?s)(?<=tags\:).*?($)"
+                tag_match = re.search(regex,new_custom_yam)
+                
+                with open(target + "/" + str(new_matched_custom).split("/")[-1]) as reader:
+                    existing_custom_yam = reader.read()
+                
+                existing_custom_yam = existing_custom_yam.replace("custom:","custom:{}".format(ref_match.group(0).rstrip()))
+                existing_custom_yam = existing_custom_yam.replace("tags:","tags:{}".format(tag_match.group(0).rstrip()))
+                
+                with open(target + "/" + str(new_matched_custom).split("/")[-1], 'w') as rite:
+                    rite.write(existing_custom_yam)  
+    
+            for rule in os.listdir(ogpath + section):
+                if not os.path.exists(target + "/" + rule):
+                    shutil.copyfile(ogpath + section + "/" + rule, target + "/" + rule)
+
+        elif not os.path.isdir(target):
+            # fullpath = os.path.abspath(target)
+            shutil.move(original, target)        
+
         
     custom_baseline_file = script_path + "/build/" + framework + "/baseline/" + framework.lower() + ".yaml"
     custom_baseline_file = custom_baseline_file.replace(" ","\ ").replace("(","\(").replace(")","\)")
     full_path_baseline = os.path.abspath(custom_baseline_file)
     print(script_path + "/scripts/generate_guidance.py -p -x -s " + full_path_baseline)
     subprocess.call(script_path + "/scripts/generate_guidance.py -p -x -s " + full_path_baseline , shell=True)
-
-
-
-
