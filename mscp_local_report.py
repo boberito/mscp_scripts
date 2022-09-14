@@ -14,6 +14,12 @@ from openpyxl.chart import (
     Reference
 )
 from openpyxl.chart.series import DataPoint
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import base64
+from io import BytesIO
+
 
 def validate_file(arg):
     if (file := Path(arg)).is_file():
@@ -71,3 +77,20 @@ if ".xlsx" == args.output[-5:]:
 else:
     savefile = args.output + ".xlsx"
 wb.save(savefile)
+
+wb  = pd.read_excel(savefile)
+htmlsavefile = savefile.replace(".xlsx",".html")
+wb.to_html(htmlsavefile)
+
+y = np.array([failed,passed])
+mylabels = ["Failed","Passed"]
+plt.pie(y, labels = mylabels)
+plt.legend(title = "Compliance Scan Results")
+# plt.show()
+pngsavefile = savefile.replace(".xlsx",".png")
+plt.savefig(pngsavefile,dpi=72) 
+
+html = '<img src="{}"><br>0 = Passed<br>1 = Finding'.format(pngsavefile)
+
+with open(htmlsavefile, 'r') as original: data = original.read()
+with open(htmlsavefile, 'w') as modified: modified.write(html + data)
