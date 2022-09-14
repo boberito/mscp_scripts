@@ -2,6 +2,7 @@
 # description: Point to mSCP Plist Log File to make pretty graph, 
 # required: input file and output file
 # ./mscp_local_report -p /Library/Preferences/org.BASELINE.audit.plist -o ~/prettyoutput.xlsx
+
 import argparse
 from openpyxl import Workbook
 from pathlib import Path
@@ -94,7 +95,19 @@ pngimg = b64png.decode('ascii')
 
 temp_dir.cleanup()
 
-html = '<img src="data:image/png;base64,{}"><br>0 = Passed<br>1 = Finding'.format(pngimg)
+html = '''<!DOCTYPE html>
+<html>
+<head>
+  <title>mSCP Compliance Scan Results</title>
+</head>
+<body>
+  <img src="data:image/png;base64,{}">
+  <br>0 = Passed
+  <br>1 = Finding
+  '''.format(pngimg)
 
+endhtml = '''
+</body>
+</html>'''
 with open(htmlsavefile, 'r') as original: data = original.read()
-with open(htmlsavefile, 'w') as modified: modified.write(html + data)
+with open(htmlsavefile, 'w') as modified: modified.write(html + data + endhtml)
