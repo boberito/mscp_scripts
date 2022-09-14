@@ -2,7 +2,7 @@
 Scripts to use with the macOS Security Compliance Project
 
 The secure-framework-automapping.py requires requests and openpyxl. 
-The mscp_local_report.py requires openpyxl.
+The mscp_local_report.py requires openpyxl, matplotlib, and pandas.
 
 To install the requirements, run
 
