@@ -2,7 +2,6 @@
 # description: Point to mSCP Plist Log File to make pretty graph, 
 # required: input file and output file
 # ./mscp_local_report -p /Library/Preferences/org.BASELINE.audit.plist -o ~/prettyoutput.xlsx
-
 import argparse
 from openpyxl import Workbook
 from pathlib import Path
@@ -19,7 +18,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import base64
 from io import BytesIO
-
+import tempfile
 
 def validate_file(arg):
     if (file := Path(arg)).is_file():
@@ -86,11 +85,16 @@ y = np.array([failed,passed])
 mylabels = ["Failed","Passed"]
 plt.pie(y, labels = mylabels)
 plt.legend(title = "Compliance Scan Results")
-# plt.show()
-pngsavefile = savefile.replace(".xlsx",".png")
-plt.savefig(pngsavefile,dpi=72) 
 
-html = '<img src="{}"><br>0 = Passed<br>1 = Finding'.format(pngsavefile)
+temp_dir = tempfile.TemporaryDirectory()
+tmppng = temp_dir.name + "/pie.png"
+plt.savefig(tmppng,dpi=72) 
+b64png = base64.b64encode(open(tmppng, "rb").read())
+pngimg = b64png.decode('ascii')
+
+temp_dir.cleanup()
+
+html = '<img src="data:image/png;base64,{}"><br>0 = Passed<br>1 = Finding'.format(pngimg)
 
 with open(htmlsavefile, 'r') as original: data = original.read()
 with open(htmlsavefile, 'w') as modified: modified.write(html + data)
