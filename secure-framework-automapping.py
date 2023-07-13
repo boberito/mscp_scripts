@@ -58,7 +58,7 @@ nist_column = int()
 for column_cell in sheet.iter_cols(1, sheet.max_column):  # iterate column cell
 
     if str(column_cell[0].value).replace("\n"," ") == framework:    # check for your column
-        keys.append(framework)
+        keys.append(framework.replace(" ","_"))
         for data in column_cell[1:]:    # iterate your column
             if data.value == None:
                 continue
@@ -107,7 +107,7 @@ if results.repo != "/tmp/":
     script_path = path[:-6]
     full_path_mapping = os.path.abspath(path_to_framework_mapping)
     subprocess.call(script_path + "/scripts/generate_mapping.py " + full_path_mapping , shell=True)
-    ogpath = script_path + "/build/" + framework + "/rules/"
+    ogpath = script_path + "/build/" + framework.replace(" ","_") + "/rules/"
     rules_dir = os.listdir(ogpath)
     for section in rules_dir:
         original = ogpath + "/" + section
@@ -149,7 +149,7 @@ if results.repo != "/tmp/":
             shutil.move(original, target)        
 
         
-    custom_baseline_file = script_path + "/build/" + framework + "/baseline/" + framework.lower() + ".yaml"
+    custom_baseline_file = script_path + "/build/" + framework.replace(" ","_") + "/baseline/" + framework.lower().replace(" ","_") + ".yaml"
     custom_baseline_file = custom_baseline_file.replace(" ","\ ").replace("(","\(").replace(")","\)")
     full_path_baseline = os.path.abspath(custom_baseline_file)
     print(script_path + "/scripts/generate_guidance.py -p -x -s " + full_path_baseline)
