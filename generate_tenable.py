@@ -239,7 +239,9 @@ def main():
                     else:
                         references = references + "{}|{},".format(values,v)
             references.rstrip()
-            if references[-1] == ",":
+            if references == "":
+                references = "" 
+            elif references[-1] == ",":
                 references = references.rstrip(references[-1])
 
             if "inherent" in rule_yaml['tags']:
