@@ -8,6 +8,7 @@ from collections import OrderedDict
 import subprocess
 import shutil
 import re
+import json
 
 parser = argparse.ArgumentParser(description='Run with no option to generate files to /tmp or point to the mscp directory')
 parser.add_argument("-r", "--repo", default="/tmp/", help="Directory mscp is cloned to", type=str)
@@ -22,8 +23,16 @@ else:
     path = results.repo
 
 
-url = 'https://raw.githubusercontent.com/securecontrolsframework/securecontrolsframework/main/SCF_current.xlsx'
+url = 'https://api.github.com/repos/securecontrolsframework/securecontrolsframework/releases/latest'
 r = requests.get(url, allow_redirects=True)
+response_data = json.loads(r.content.decode('utf-8'))
+
+for downloads in response_data['assets']:
+    if '.xlsx' in downloads['browser_download_url']:
+        r = requests.get(downloads['browser_download_url'], allow_redirects=True)
+        open(path + '/SCF_current.xlsx', 'wb').write(r.content)
+
+
 
 open(path + '/SCF_current.xlsx', 'wb').write(r.content)
 
