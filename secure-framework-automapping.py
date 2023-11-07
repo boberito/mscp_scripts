@@ -22,28 +22,18 @@ if results.repo != "/tmp/":
 else:
     path = results.repo
 
-
 url = 'https://api.github.com/repos/securecontrolsframework/securecontrolsframework/releases/latest'
 r = requests.get(url, allow_redirects=True)
 response_data = json.loads(r.content.decode('utf-8'))
-
-for downloads in response_data['assets']:
-    if '.xlsx' in downloads['browser_download_url']:
-        r = requests.get(downloads['browser_download_url'], allow_redirects=True)
-        open(path + '/SCF_current.xlsx', 'wb').write(r.content)
-
-
-
+r = requests.get("https://raw.githubusercontent.com/securecontrolsframework/securecontrolsframework/{}/SCF_current.xlsx".format(response_data['tag_name']),allow_redirects=True)
 open(path + '/SCF_current.xlsx', 'wb').write(r.content)
-
 workbook = load_workbook(filename=path + "/SCF_current.xlsx")
 sheet = workbook.active
-
 
 frameworklist = [""]
 for cell in sheet[1]:    
     if cell.fill.start_color.index == 5 or cell.fill.start_color.index == 9 or cell.fill.start_color.index == 4 or cell.fill.start_color.index == 3:
-        if "Risk" not in str(cell.value) and "800-53" not in str(cell.value) and "800-171" not in str(cell.value) and "CIS" not in str(cell.value) and "SP-CMM" not in str(cell.value):
+        if "Risk" not in str(cell.value) and "800-53" not in str(cell.value) and "800-171" not in str(cell.value) and "CIS" not in str(cell.value) and "SP-CMM" not in str(cell.value) and "CMMC" not in str(cell.value):
             # print()
             frameworklist.append(str(cell.value).replace('\n'," "))
 
@@ -52,10 +42,8 @@ for framework in frameworklist[1:]:
     print("{}. {}".format(frameworklist.index(framework),framework))
         
 print()
-print()
 framework_number = input("Enter Number for Framework for Mapping: ")
 framework = frameworklist[int(framework_number)]
-
 
 mapping = {}
 keys = []
@@ -74,8 +62,7 @@ for column_cell in sheet.iter_cols(1, sheet.max_column):  # iterate column cell
             else:
                 keys.append("\"" + str(data.value).replace("\n",", ") + "\"")
                 row_array.append(data.row)
-        break
-    
+        break   
 
 for column_cell in sheet.iter_cols(1, sheet.max_column):
     if str(column_cell[0].value).replace("\n"," ") == "NIST 800-53 rev5":
@@ -86,7 +73,6 @@ for column_cell in sheet.iter_cols(1, sheet.max_column):
                     values.append("N/A")
                 else:
                     values.append("\"" + str(data.value).replace("\n",", ") + "\"")
-
 
 fullcsv = str()
 missingcontrols = str()
@@ -156,7 +142,6 @@ if results.repo != "/tmp/":
         elif not os.path.isdir(target):
             # fullpath = os.path.abspath(target)
             shutil.move(original, target)        
-
         
     custom_baseline_file = script_path + "/build/" + framework.replace(" ","_") + "/baseline/" + framework.lower().replace(" ","_") + ".yaml"
     custom_baseline_file = custom_baseline_file.replace(" ","\ ").replace("(","\(").replace(")","\)")
