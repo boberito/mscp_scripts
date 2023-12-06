@@ -22,14 +22,31 @@ if results.repo != "/tmp/":
 else:
     path = results.repo
 
-url = 'https://api.github.com/repos/securecontrolsframework/securecontrolsframework/releases/latest'
+latest_url = 'https://api.github.com/repos/securecontrolsframework/securecontrolsframework/releases/latest'
+latest_r = requests.get(latest_url, allow_redirects=True)
+latest_response_data = json.loads(latest_r.content.decode('utf-8'))
+download_url = ""
+url = 'https://api.github.com/repos/securecontrolsframework/securecontrolsframework/contents'
 r = requests.get(url, allow_redirects=True)
 response_data = json.loads(r.content.decode('utf-8'))
-r = requests.get("https://raw.githubusercontent.com/securecontrolsframework/securecontrolsframework/{}/SCF_current.xlsx".format(response_data['tag_name']),allow_redirects=True)
+
+for item in response_data:
+    for k,v in item.items():
+        if k == "download_url":    
+            try:
+                if "xlsx" in v:
+                    download_url = v
+            except:
+                continue
+if download_url == "":
+    print("No xlsx file found")
+    exit()
+    
+r = requests.get(download_url,allow_redirects=True)
 open(path + '/SCF_current.xlsx', 'wb').write(r.content)
 workbook = load_workbook(filename=path + "/SCF_current.xlsx")
-sheet = workbook.active
-
+print(workbook.sheetnames)
+sheet = workbook['SCF {}'.format(latest_response_data['tag_name'])]
 frameworklist = [""]
 for cell in sheet[1]:    
     if cell.fill.start_color.index == 5 or cell.fill.start_color.index == 9 or cell.fill.start_color.index == 4 or cell.fill.start_color.index == 3:
