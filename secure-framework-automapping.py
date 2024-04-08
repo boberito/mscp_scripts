@@ -41,12 +41,10 @@ for item in response_data:
 if download_url == "":
     print("No xlsx file found")
     exit()
-    
 r = requests.get(download_url,allow_redirects=True)
 open(path + '/SCF_current.xlsx', 'wb').write(r.content)
 workbook = load_workbook(filename=path + "/SCF_current.xlsx")
-print(workbook.sheetnames)
-sheet = workbook['SCF {}'.format(latest_response_data['tag_name'])]
+sheet = workbook['{}'.format(latest_response_data['name'])]
 frameworklist = [""]
 for cell in sheet[1]:    
     if cell.fill.start_color.index == 5 or cell.fill.start_color.index == 9 or cell.fill.start_color.index == 4 or cell.fill.start_color.index == 3:
