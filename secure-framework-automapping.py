@@ -44,7 +44,7 @@ if download_url == "":
 r = requests.get(download_url,allow_redirects=True)
 open(path + '/SCF_current.xlsx', 'wb').write(r.content)
 workbook = load_workbook(filename=path + "/SCF_current.xlsx")
-sheet = workbook['{}'.format(latest_response_data['name'])]
+sheet = workbook['SCF {}'.format(latest_response_data['tag_name'])]
 frameworklist = [""]
 for cell in sheet[1]:    
     if cell.fill.start_color.index == 5 or cell.fill.start_color.index == 9 or cell.fill.start_color.index == 4 or cell.fill.start_color.index == 3:
