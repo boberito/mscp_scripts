@@ -44,7 +44,21 @@ if download_url == "":
 r = requests.get(download_url,allow_redirects=True)
 open(path + '/SCF_current.xlsx', 'wb').write(r.content)
 workbook = load_workbook(filename=path + "/SCF_current.xlsx")
-sheet = workbook['SCF {}'.format(latest_response_data['tag_name'])]
+worksheet_to_use = str()
+found_sheet = False
+for sheet in workbook:
+    for cell in sheet[1]:
+        if '''NIST
+800-53
+rev5''' in str(cell.value):
+            worksheet_to_use = sheet
+            found_sheet = True
+            break
+    if found_sheet == True:
+        break
+
+sheet = worksheet_to_use            
+# sheet = workbook['SCF {}'.format(latest_response_data['tag_name'])]
 frameworklist = [""]
 for cell in sheet[1]:    
     if cell.fill.start_color.index == 5 or cell.fill.start_color.index == 9 or cell.fill.start_color.index == 4 or cell.fill.start_color.index == 3:
