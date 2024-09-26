@@ -180,16 +180,16 @@ def main():
     </custom_item>
 </condition>
     '''.format(version_yaml['os'],version_yaml['os'].split('"')[0].split('.')[0])
-  
+    githubBranch = version_yaml['version'].split(" ")[0].lower()
     tenable = tenable + '''
 <then>
     <report type:"PASSED">
       description : "{}"
-      see_also    : "https://github.com/usnistgov/macos_security"
+      see_also    : "https://github.com/usnistgov/macos_security/blob/{}"
 </report>
     
-    '''.format(profile_yaml['title'])
-    
+    '''.format(profile_yaml['title'],githubBranch)
+    # https://github.com/usnistgov/macos_security/blob/ventura/rules/os/os_airdrop_disable.yaml
     for sections in profile_yaml['profile']:
         if sections['section'] == "Supplemental":
             continue
@@ -250,8 +250,9 @@ def main():
     description : "{0}"
     info        : "{1}"
     reference   : "{2}"
-    see_also    : "https://github.com/usnistgov/macos_security"
-</report>'''.format(rule_yaml['title'],rule_yaml['discussion'].replace('"','\\"').rstrip(),references)
+    see_also    : "https://github.com/usnistgov/macos_security/blob/{3}/rules/{4}/{5}.yaml"
+</report>'''.format(rule_yaml['title'],rule_yaml['discussion'].replace('"','\\"').rstrip(),references,githubBranch,rule_yaml['id'].split("_")[0],rule_yaml['id'])
+    # https://github.com/usnistgov/macos_security/blob/ventura/rules/os/os_airdrop_disable.yaml
 
             elif "permanent" in rule_yaml['tags']:
                 tenable = tenable + '''
@@ -259,8 +260,8 @@ def main():
     description : "{0}"
     info        : "{1}"
     reference   : "{2}"
-    see_also    : "https://github.com/usnistgov/macos_security"
-</report>'''.format(rule_yaml['title'],rule_yaml['discussion'].replace('"','\\"').rstrip(),references)
+    see_also    : "https://github.com/usnistgov/macos_security/blob/{3}/rules/{4}/{5}.yaml"
+</report>'''.format(rule_yaml['title'],rule_yaml['discussion'].replace('"','\\"').rstrip(),references,githubBranch,rule_yaml['id'].split("_")[0],rule_yaml['id'])
                 
             elif "n_a" in rule_yaml['tags']:
                 tenable = tenable
@@ -271,8 +272,8 @@ def main():
     description : "{0}"
     info        : "{1}"
     reference   : "{2}"
-    see_also    : "https://github.com/usnistgov/macos_security"
-</report>'''.format(rule_yaml['title'],rule_yaml['discussion'].replace('"','\\"').rstrip(),references)
+    see_also    : "https://github.com/usnistgov/macos_security/blob/{3}/rules/{4}/{5}.yaml"
+</report>'''.format(rule_yaml['title'],rule_yaml['discussion'].replace('"','\\"').rstrip(),references,githubBranch,rule_yaml['id'].split("_")[0],rule_yaml['id'])
             
             else:
                 rule_yaml['check'] = rule_yaml['check'].replace('\\','\\\\')
@@ -286,10 +287,10 @@ def main():
     description : "{0}"
     info        : "{1}"
     reference   : "{4}"
-    see_also    : "https://github.com/usnistgov/macos_security"
+    see_also    : "https://github.com/usnistgov/macos_security/blob/{5}/rules/{6}/{7}.yaml"
     cmd         : "{2}"
     expect      : "{3}"
-</custom_item>'''.format(rule_yaml['title'],rule_yaml['discussion'].replace('"','\\"').rstrip(),rule_yaml['check'].replace('"','\\"').rstrip(),mscp_result,references)
+</custom_item>'''.format(rule_yaml['title'],rule_yaml['discussion'].replace('"','\\"').rstrip(),rule_yaml['check'].replace('"','\\"').rstrip(),mscp_result,references,githubBranch,rule_yaml['id'].split("_")[0],rule_yaml['id'])
     
     
 
@@ -300,13 +301,13 @@ def main():
     <report type:"WARNING">
       description : "{}"
       info        : "NOTE: Nessus has not identified that the chosen audit applies to the target device."
-      see_also    : "https://github.com/usnistgov/macos_security"
+      see_also    : "https://github.com/usnistgov/macos_security/blob/{}/rules/{}/{}.yaml"
     </report>
   </else>
 </if>
 
 </check_type>
-'''.format(profile_yaml['title'])
+'''.format(profile_yaml['title'],githubBranch,rule_yaml['id'].split("_")[0],rule_yaml['id'])
     with open(output,'w') as rite:
             rite.write(tenable)
             rite.close()
