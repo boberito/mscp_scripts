@@ -278,9 +278,11 @@ def main():
                                 }
                     }
                 else:
-                    rule_dict["fix"] = {
-                        "shell_script": rule_yaml['fix'].replace('"','\\"').rstrip().replace("\n","\\n")
-                    }
+                    if "[source,bash]" in rule_yaml['fix']:
+                        rule_dict["fix"] = {
+                            "shell_script": rule_yaml['fix'].split("----")[1].replace('"','\\"').rstrip().replace("\n","\\n")
+                        }
+                    
                 json_manifest['rules'].append(rule_dict)
 
 
