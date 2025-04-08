@@ -83,11 +83,14 @@ def get_rule_yaml(rule_file, custom=False):
                         resulting_yaml['customized'] = ["customized {}".format(yaml_field)]
             except KeyError:
                 resulting_yaml[yaml_field] = og_rule_yaml[yaml_field]
-
+    
     return resulting_yaml
 
 def fill_in_odv(resulting_yaml, parent_values):
-    fields_to_process = ['title', 'discussion', 'check', 'fix']
+    if "osquery" in resulting_yaml:
+        fields_to_process = ['title', 'discussion', 'check', 'fix','osquery']
+    else:
+        fields_to_process = ['title', 'discussion', 'check', 'fix']
     _has_odv = False
     if "odv" in resulting_yaml:
         try:
@@ -132,6 +135,13 @@ def fill_in_odv(resulting_yaml, parent_values):
 def main():
     parser = argparse.ArgumentParser(description='Given a profile, create JSON Vendor Manifest.')
     parser.add_argument("baseline", default=None, help="Baseline YAML file used to create the JSON Vendor Manifest.", type=argparse.FileType('rt'))
+    parser.add_argument("--osquery", "-o", default=None, help="osquery mapping file.", type=argparse.FileType('rt'))
+    
+    results = parser.parse_args()
+    osquery_data = {}
+    if results.osquery:
+        with open (results.osquery.name, 'r') as osquery_json_file:
+            osquery_data = json.load(osquery_json_file)
 
     results = parser.parse_args()
     try:
@@ -204,6 +214,11 @@ def main():
                 parent_values = profile_yaml['parent_values']
             except KeyError:
                 parent_values = "recommended"
+            if results.osquery:
+                for mapping in osquery_data['os_query_mappings']:
+                    if mapping['id'] == rule_yaml['id']:
+                        rule_yaml['osquery'] = mapping['query']
+                        break
 
             fill_in_odv(rule_yaml,parent_values)
             mscp_result = ""
@@ -282,7 +297,9 @@ def main():
                         rule_dict["fix"] = {
                             "shell_script": rule_yaml['fix'].split("----")[1].replace('"','\\"').rstrip().replace("\n","\\n")
                         }
-                    
+                if "osquery" in rule_yaml:
+                    rule_dict['osquery'] = rule_yaml['osquery']
+
                 json_manifest['rules'].append(rule_dict)
 
 
