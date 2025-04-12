@@ -9,6 +9,7 @@ import yaml
 import glob
 import json
 import warnings
+import datetime
 from pathlib import Path
 
 def get_rule_yaml(rule_file, custom=False):
@@ -185,7 +186,7 @@ def main():
     "parent_values": profile_yaml['parent_values'],
     "plist_location": "/Library/Preferences/org.{}.audit.plist".format(baseline_name),
     "log_location": "/Library/Logs/{}_baseline.log".format(baseline_name),
-    "creation_date": "02-31-2026",
+    "creation_date": datetime.datetime.now().replace(microsecond=0).isoformat(),
     "rules": []
     }
 
