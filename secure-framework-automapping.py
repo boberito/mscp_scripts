@@ -60,15 +60,19 @@ rev5''' in str(cell.value):
 sheet = worksheet_to_use            
 # sheet = workbook['SCF {}'.format(latest_response_data['tag_name'])]
 frameworklist = [""]
-for cell in sheet[1]:    
-    if cell.fill.start_color.index == 5 or cell.fill.start_color.index == 9 or cell.fill.start_color.index == 4 or cell.fill.start_color.index == 3:
+for cell in sheet[1]: 
+    txt = str(cell.value).replace('\n', ' ').strip() if cell.value else ''   
+    if cell.fill.start_color.index == 5 or cell.fill.start_color.index == 9 or cell.fill.start_color.index == 4 or cell.fill.start_color.index == 3 or txt == "SCF #": 
         if "Risk" not in str(cell.value) and "800-53" not in str(cell.value) and "800-171" not in str(cell.value) and "CIS" not in str(cell.value) and "SP-CMM" not in str(cell.value) and "CMMC" not in str(cell.value):
             # print()
-            frameworklist.append(str(cell.value).replace('\n'," "))
+            cellvalue = str(cell.value).replace('\n'," ")
+            # if cellvalue == "SCF #":
+            #     cellvalue = "SecureControlsFramework"
+            frameworklist.append(cellvalue)
 
 frameworklist.sort()
 for framework in frameworklist[1:]:
-    print("{}. {}".format(frameworklist.index(framework),framework))
+    print("{}. {}".format(frameworklist.index(framework),framework).replace("SCF #","SecureControlsFramework"))
         
 print()
 framework_number = input("Enter Number for Framework for Mapping: ")
@@ -84,7 +88,7 @@ nist_column = int()
 for column_cell in sheet.iter_cols(1, sheet.max_column):  # iterate column cell
 
     if str(column_cell[0].value).replace("\n"," ") == framework:    # check for your column
-        keys.append(framework.replace(" ","_").replace("&","A").replace("/","-"))
+        keys.append(framework.replace("#","").rstrip().replace(" ","_").replace("&","A").replace("/","-"))
         for data in column_cell[1:]:    # iterate your column
             if data.value == None:
                 continue
@@ -113,7 +117,7 @@ for key in keys:
         missingcontrols = missingcontrols + key + "\n"
     counter += 1
 
-framework_filename = framework.replace(" ","_").replace("(","_").replace(")","_").replace("&","A").replace("/","-")
+framework_filename = framework.replace("#","").rstrip().replace(" ","_").replace("(","_").replace(")","_").replace("&","A").replace("/","-")
 path_to_framework_mapping = path + "/" + framework_filename + "-mapping.csv"
 missing_controls = path + "/" + framework_filename + "-missingcontrols.txt"
 with open(path_to_framework_mapping,'w') as rite:
@@ -131,7 +135,7 @@ if results.repo != "/tmp/":
     script_path = path[:-6]
     full_path_mapping = os.path.abspath(path_to_framework_mapping)
     subprocess.call(script_path + "/scripts/generate_mapping.py " + full_path_mapping , shell=True)
-    ogpath = script_path + "/build/" + framework.replace(" ","_").replace("(","_").replace(")","_").replace("&","A").replace("/","-") + "/rules/"
+    ogpath = script_path + "/build/" + framework.replace("#","").rstrip().replace(" ","_").replace("(","_").replace(")","_").replace("&","A").replace("/","-") + "/rules/"
     rules_dir = os.listdir(ogpath)
     for section in rules_dir:
         original = ogpath + "/" + section
@@ -172,8 +176,8 @@ if results.repo != "/tmp/":
             # fullpath = os.path.abspath(target)
             shutil.move(original, target)        
         
-    custom_baseline_file = script_path + "/build/" + framework.replace(" ","_").replace("(","_").replace(")","_").replace("&","A").replace("/","-") + "/baseline/" + framework.lower().replace(" ","_").replace("(","_").replace(")","_").replace("&","A").replace("/","-") + ".yaml"
-    custom_baseline_file = custom_baseline_file.replace(" ","_").replace("(","_").replace(")","_").replace("&","A")
+    custom_baseline_file = script_path + "/build/" + framework.replace("#","").rstrip().replace(" ","_").replace("(","_").replace(")","_").replace("&","A").replace("/","-") + "/baseline/" + framework.lower().replace("#","").rstrip().replace(" ","_").replace("(","_").replace(")","_").replace("&","A").replace("/","-") + ".yaml"
+    custom_baseline_file = custom_baseline_file.replace("#","").rstrip().replace(" ","_").replace("(","_").replace(")","_").replace("&","A")
     full_path_baseline = os.path.abspath(custom_baseline_file)
     print(script_path + "/scripts/generate_guidance.py -p -x -s " + full_path_baseline)
     subprocess.call(script_path + "/scripts/generate_guidance.py -p -x -s " + full_path_baseline , shell=True)
