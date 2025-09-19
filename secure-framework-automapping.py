@@ -176,7 +176,7 @@ if results.repo != "/tmp/":
             # fullpath = os.path.abspath(target)
             shutil.move(original, target)        
         
-    custom_baseline_file = script_path + "/build/" + framework.replace("#","").rstrip().replace(" ","_").replace("(","_").replace(")","_").replace("&","A").replace("/","-") + "/baseline/" + framework.lower().replace("#","").rstrip().replace(" ","_").replace("(","_").replace(")","_").replace("&","A").replace("/","-") + ".yaml"
+    custom_baseline_file = script_path + "/build/baselines/" + framework.lower().replace("#","").rstrip().replace(" ","_").replace("(","_").replace(")","_").replace("&","A").replace("/","-") + ".yaml"
     custom_baseline_file = custom_baseline_file.replace("#","").rstrip().replace(" ","_").replace("(","_").replace(")","_").replace("&","A")
     full_path_baseline = os.path.abspath(custom_baseline_file)
     print(script_path + "/scripts/generate_guidance.py -p -x -s " + full_path_baseline)
