@@ -50,7 +50,7 @@ for sheet in workbook:
     for cell in sheet[1]:
         if '''NIST
 800-53
-rev5''' in str(cell.value):
+R5''' in str(cell.value):
             worksheet_to_use = sheet
             found_sheet = True
             break
@@ -88,7 +88,8 @@ nist_column = int()
 for column_cell in sheet.iter_cols(1, sheet.max_column):  # iterate column cell
 
     if str(column_cell[0].value).replace("\n"," ") == framework:    # check for your column
-        keys.append(framework.replace("#","").rstrip().replace(" ","_").replace("&","A").replace("/","-"))
+        keys.append(framework)
+        # keys.append(framework.replace("#","").rstrip().replace(" ","_").replace("&","A").replace("/","-").replace(":","-"))
         for data in column_cell[1:]:    # iterate your column
             if data.value == None:
                 continue
@@ -98,7 +99,7 @@ for column_cell in sheet.iter_cols(1, sheet.max_column):  # iterate column cell
         break   
 
 for column_cell in sheet.iter_cols(1, sheet.max_column):
-    if str(column_cell[0].value).replace("\n"," ") == "NIST 800-53 rev5":
+    if str(column_cell[0].value).replace("\n"," ") == "NIST 800-53 R5":
         values.append("800-53r5")
         for data in column_cell[1:]:
             if data.row in row_array:
@@ -117,7 +118,7 @@ for key in keys:
         missingcontrols = missingcontrols + key + "\n"
     counter += 1
 
-framework_filename = framework.replace("#","").rstrip().replace(" ","_").replace("(","_").replace(")","_").replace("&","A").replace("/","-")
+framework_filename = framework.replace("#","").rstrip().replace(" ","_").replace("(","_").replace(")","_").replace("&","A").replace("/","-").replace(":","-")
 path_to_framework_mapping = path + "/" + framework_filename + "-mapping.csv"
 missing_controls = path + "/" + framework_filename + "-missingcontrols.txt"
 with open(path_to_framework_mapping,'w') as rite:
@@ -133,9 +134,12 @@ print("{} and {} written to {}".format(framework_filename + "-mapping.csv", fram
 if results.repo != "/tmp/":
     
     script_path = path[:-6]
+    print("PATH TO FW MAPPING {}".format(path_to_framework_mapping))
     full_path_mapping = os.path.abspath(path_to_framework_mapping)
     subprocess.call(script_path + "/scripts/generate_mapping.py " + full_path_mapping , shell=True)
-    ogpath = script_path + "/build/" + framework.replace("#","").rstrip().replace(" ","_").replace("(","_").replace(")","_").replace("&","A").replace("/","-") + "/rules/"
+    ogpath = script_path + "/build/" + framework.replace("#","").rstrip().replace(" ","_").replace("(","_").replace(")","_").replace("&","A").replace("/","-").replace(":","-") + "/rules/"
+    print("FRAMEWORK {}".format(framework))
+    print("HERE I AM {}".format(ogpath))
     rules_dir = os.listdir(ogpath)
     for section in rules_dir:
         original = ogpath + "/" + section
@@ -176,8 +180,8 @@ if results.repo != "/tmp/":
             # fullpath = os.path.abspath(target)
             shutil.move(original, target)        
         
-    custom_baseline_file = script_path + "/build/baselines/" + framework.lower().replace("#","").rstrip().replace(" ","_").replace("(","_").replace(")","_").replace("&","A").replace("/","-") + ".yaml"
-    custom_baseline_file = custom_baseline_file.replace("#","").rstrip().replace(" ","_").replace("(","_").replace(")","_").replace("&","A")
+    custom_baseline_file = script_path + "/build/baselines/" + framework.lower().replace("#","").rstrip().replace(" ","_").replace("(","_").replace(")","_").replace("&","A").replace("/","-").replace(":","-")+ ".yaml"
+    custom_baseline_file = custom_baseline_file.replace("#","").rstrip().replace(" ","_").replace("(","_").replace(")","_").replace("&","A").replace(":","-")
     full_path_baseline = os.path.abspath(custom_baseline_file)
     print(script_path + "/scripts/generate_guidance.py -p -x -s " + full_path_baseline)
     subprocess.call(script_path + "/scripts/generate_guidance.py -p -x -s " + full_path_baseline , shell=True)
