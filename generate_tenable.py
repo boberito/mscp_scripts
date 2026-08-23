@@ -1,5 +1,11 @@
 #! /usr/bin/env python
-#use just like generate_guidance.py - point to a baseline file. Boom.
+# To use create a python virtual environment SEPERATE from your mSCP virtual environment and install the following packages:
+# Requires python 3.12 or higher
+# python3 -m venv .venv
+# source .venv/bin/activation
+# pip install git+https://github.com/usnistgov/macos_security@main
+# ./generate_tenable.py <baseline.yaml>
+
 from mscp import RuleLibrary
 from mscp import Macsecurityrule
 from mscp import Baseline
@@ -38,42 +44,20 @@ def main():
 
     results = parser.parse_args()
     try:
-        
         output_basename = os.path.basename(results.baseline.name)
         output_filename = os.path.splitext(output_basename)[0]
         baseline_name = os.path.splitext(output_basename)[0]
         file_dir = os.path.dirname(os.path.abspath(__file__))
-        parent_dir = os.path.dirname(file_dir)
-        # stash current working directory
         original_working_directory = os.getcwd()
-
-        # switch to the scripts directory
-        os.chdir(file_dir)
-        build_path = os.path.join(parent_dir, 'build', f'{baseline_name}')
-        output = build_path + "/" + baseline_name + ".audit"
-
-        if not (os.path.isdir(build_path)):
-            try:
-                os.makedirs(build_path)
-            except OSError:
-                print(f"Creation of the directory {build_path} failed")
+        os.chdir(file_dir)        
+        output = file_dir + "/" + baseline_name + ".audit"
         print('Profile YAML:', results.baseline.name)
         print('Output path:', output)
-        
-       
         
     except IOError as msg:
         parser.error(str(msg))
     
-    baseline = Baseline.from_yaml(results.baseline,"en")    
-
-    
-#     version_file = "../VERSION.yaml"
-#     with open(version_file) as r:
-#         version_yaml = yaml.load(r, Loader=yaml.SafeLoader)
-
-
-#     profile_yaml = yaml.load(results.baseline, Loader=yaml.SafeLoader)
+    baseline = Baseline.from_yaml(results.baseline,"en")
     tenable = '''<check_type:"Unix">
 <if>
   <condition type:"AND">
@@ -94,7 +78,6 @@ def main():
 </report>
     
     '''.format(baseline.title)
-#     # https://github.com/usnistgov/macos_security/blob/ventura/rules/os/os_airdrop_disable.yaml
 
     for section in baseline.profile:
         if section.section == "Supplemental" or section.section == "Excluded":
@@ -144,11 +127,6 @@ def main():
                     references = references + ","
             references.rstrip()
 
-            #   reference   : "800-171|3.4.1,800-171|3.4.2,800-171|3.4.6,800-171|3.4.7,800-171|3.13.1,800-171|3.13.2,800-171r3|03.04.01,800-171r3|03.04.02,800-171r3|03.04.06,800-171r3|03.16.01,800-53|CM-2,800-53|CM-6,800-53|CM-7,800-53|CM-7(1),800-53|CM-9,800-53|SA-3,80OTH-53|SA-8,800-53|SA-10,8００－５３ｒ５｜ＣＭ－１，８００－５３ｒ５｜ＣＭ－２，８００－５３ｒ５｜ＣＭ－６，８００－５３ｒ５｜ＣＭ－７，８００－５３ｒ５｜ＣＭ－７（１），８００－５３ｒ５｜ＣＭ－９，８００－５３ｒ５｜ＳＡ－３，８００－５３ｒ５｜ＳＡ－８，８００－５３ｒ５｜ＳＡ－１０，ＣＳＣｖ７｜１６．１１，ＣＳＣｖ８｜４．１，ＣＳＦ｜ＤＥ．ＡＥ－１，ＣＳＦ｜ＰＲ．ＤＳ－７，ＣＳＦ｜ＰＲ．ＩＰ－１，ＣＳＦ｜ＰＲ．ＩＰ－２，ＣＳＦ｜ＰＲ．ＩＰ－３，ＣＳＦ｜ＰＲ．ＰＴ－３，ＣＳＦ２．０｜ＤＥ．ＣＭ－０９，ＣＳＦ２．０｜ＩＤ．ＡＭ－０８，ＣＳＦ２．０｜ＩＤ．ＩＭ－０１，ＣＳＦ２．０｜ＩＤ．ＩＭ－０２，ＣＳＦ２．０｜ＩＤ．ＩＭ－０３，ＣＳＦ２．０｜ＩＤ．ＲＡ－Ｏ９，ＣＳＦ２．Ｏ｜ＰＲ．ＤＳ－１Ｏ，ＣＳＦ２．Ｏ｜ＰＲ．ＩＲ－Ｏ３，ＣＳＦ２．Ｏ｜ＰＲ．ＰＳ－Ｏ１，ＣＳＦ２．Ｏ｜ＰＲ．ＰＳ－Ｏ６，ＧＤＰＲ｜３２．１ｂ，ＨＩＰＡＡ｜１６４．３０６（ａ）（１），ＩＳＯ＿２７００１＿２₀₂₂｜Ａ．５．２，ＩＳＯ＿２７₀₀₁＿₂₀₂₂｜Ａ．５．８，ＩＳＯ＿２７₀₀₁＿₂₀₂₂｜Ａ．８．９，ＩＳＯ＿２７₀₀₁＿₂₀₂₂｜Ａ．８．２５，ＩＳＯ＿２７₀₀₁＿₂₀₂₂｜Ａ．８．２６，ＩＳＯ＿２７₀₀₁＿₂₀₂₂｜Ａ．８．２７，ＩＳＯ＿２７₀₀₁＿₂₀₂₂｜Ａ．８．２８，ＩＳＯ＿２７₀₀₁＿₂₀₂₂｜Ａ．８．３０，Ｉ🇸🇴＿𝟐𝟕𝟎𝟎𝟏＿𝟐𝟎𝟐𝟐｜𝑨。𝟖。𝟑𝟏، 𝑰𝑺𝑶＿𝟐𝟕𝟎𝟎𝟏＿𝟐𝟎𝟐𝟐}|𝑨。 𝒃。  𝒃。  𝒃。  𝒃。  𝒃。  𝒃。  𝒃。  𝒃。  𝒃。  𝒃。  𝒃。  𝒃。  𝒃。  𝒃。  𝒃。  𝒃。  𝒃。  𝒃。  𝒃。  𝒃。
-            #                                                       
-              
-           
-
             if "inherent" in rule.tags:
                 tenable = tenable + '''
 <report type:"PASSED">
@@ -197,8 +175,6 @@ def main():
     expect      : "{3}"
 </custom_item>'''.format(rule.title,rule.discussion.replace('"','\\"').rstrip(),rule.check.replace('"','\\"').rstrip(),rule.result_value,references,rule.rule_id.split("_")[0],rule.rule_id)
     
-    
-
     tenable = tenable + '''
       </then>
 
