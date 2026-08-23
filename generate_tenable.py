@@ -135,7 +135,6 @@ def main():
     reference   : "{2}"
     see_also    : "https://github.com/usnistgov/macos_security/blob/main/src/mscp/data/rules/{3}/{4}.yaml"
 </report>'''.format(rule.title,rule.discussion.replace('"','\\"').rstrip(),references,rule.rule_id.split("_")[0],rule.rule_id)
-    # https://github.com/usnistgov/macos_security/blob/ventura/rules/os/os_airdrop_disable.yaml
 
             elif "permanent" in rule['tags']:
                 tenable = tenable + '''
