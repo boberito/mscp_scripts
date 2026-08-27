@@ -68,7 +68,7 @@ def main():
       expect      : "{}*{}"
     </custom_item>
 </condition>
-    '''.format(baseline.platform['os'],baseline.platform['version'],r'^ProductVersion[\\s]*:[\\s]',str(baseline.platform['version']).split(".")[0])    
+    '''.format(baseline.platform['os'],baseline.platform['version'],r'^ProductVersion[\\s]*:[\\s]',str(baseline.platform['version']).split(".")[0])
     tenable = tenable + '''
 <then>
     <report type:"PASSED">
@@ -84,7 +84,7 @@ def main():
             continue
         for rule in section.rules:
                      
-            references = ""
+            tenable_refs = ""
             for references, v in rule.references:
                 if v == None:
                     continue                
@@ -93,40 +93,39 @@ def main():
                         continue
                     if ref_name == "cce":
                         for values in ref_value:
-                            references = references + "{}|{},".format("CCE",values)
+                            tenable_refs = tenable_refs + "{}|{},".format("CCE",values)
                     if ref_name == "nist_800_171r3":
                         for values in ref_value:
-                            references = references + "{}|{},".format("800-171r3",values)
+                            tenable_refs = tenable_refs + "{}|{},".format("800-171r3",values)
                     if ref_name == "nist_800_53r5":
                         for values in ref_value:
-                            references = references + "{}|{},".format("800-53r5",values)
+                            tenable_refs = tenable_refs + "{}|{},".format("800-53r5",values)
                     if ref_name == "disa_stig":
                         for values in ref_value:
-                            references = references + "{}|{},".format("STIG-ID",values)
+                            tenable_refs = tenable_refs + "{}|{},".format("STIG-ID",values)
                     if ref_name == "cmmc":
                         for values in ref_value:
-                            references = references + "{}|{},".format("CMMC",values)
+                            tenable_refs = tenable_refs + "{}|{},".format("CMMC",values)
                     if ref_name == "cci":
                         for values in ref_value:
-                            references = references + "{}|{},".format("CCI",values)
+                            tenable_refs = tenable_refs + "{}|{},".format("CCI",values)
                     if ref_name == "srg":
                         for values in ref_value:
-                            references = references + "{}|{},".format("SRG",values)
+                            tenable_refs = tenable_refs + "{}|{},".format("SRG",values)
                     if ref_name == "bio":
                         for values in ref_value:
-                            references = references + "{}|{},".format("BIO",values)
+                            tenable_refs = tenable_refs + "{}|{},".format("BIO",values)
                     if ref_name == "hicp":
                         for values in ref_value:
-                            references = references + "{}|{},".format("HICP",values)
+                            tenable_refs = tenable_refs + "{}|{},".format("HICP",values)
                     if ref_name == "benchmark":
                         for values in ref_value:
-                            references = references + "{}|{},".format("CIS_Benchmark",values)
+                            tenable_refs = tenable_refs + "{}|{},".format("CIS_Benchmark",values)
                     if ref_name == "controls_v8":
                         for values in ref_value:
-                            references = references + "{}|{},".format("CIS_V8",values)
-                    references = references + ","
-            references.rstrip()
-
+                            tenable_refs = tenable_refs + "{}|{},".format("CIS_V8",values)                    
+            tenable_refs = tenable_refs[:-2]
+            
             if "inherent" in rule.tags:
                 tenable = tenable + '''
 <report type:"PASSED">
@@ -134,7 +133,7 @@ def main():
     info        : "{1}"
     reference   : "{2}"
     see_also    : "https://github.com/usnistgov/macos_security/blob/main/src/mscp/data/rules/{3}/{4}.yaml"
-</report>'''.format(rule.title,rule.discussion.replace('"','\\"').rstrip(),references,rule.rule_id.split("_")[0],rule.rule_id)
+</report>'''.format(rule.title,rule.discussion.replace('"','\\"').rstrip(),tenable_refs,rule.rule_id.split("_")[0],rule.rule_id)
 
             elif "permanent" in rule['tags']:
                 tenable = tenable + '''
@@ -143,7 +142,7 @@ def main():
     info        : "{1}"
     reference   : "{2}"
     see_also    : "https://github.com/usnistgov/macos_security/blob/main/src/mscp/data/rules/{3}/{4}.yaml"
-</report>'''.format(rule.title,rule.discussion.replace('"','\\"').rstrip(),references,rule.rule_id.split("_")[0],rule.rule_id)
+</report>'''.format(rule.title,rule.discussion.replace('"','\\"').rstrip(),tenable_refs,rule.rule_id.split("_")[0],rule.rule_id)
                 
             elif "n_a" in rule['tags']:
                 tenable = tenable
@@ -155,7 +154,7 @@ def main():
     info        : "{1}"
     reference   : "{2}"
     see_also    : "https://github.com/usnistgov/macos_security/blob/main/src/mscp/data/rules/{3}/{4}.yaml"
-    </report>'''.format(rule.title,rule.discussion.replace('"','\\"').rstrip(),references,rule.rule_id.split("_")[0],rule.rule_id)
+    </report>'''.format(rule.title,rule.discussion.replace('"','\\"').rstrip(),tenable_refs,rule.rule_id.split("_")[0],rule.rule_id)
             
             else:
                 rule.check = rule.check.replace('\\','\\\\')
@@ -172,7 +171,7 @@ def main():
     see_also    : "https://github.com/usnistgov/macos_security/blob/main/src/mscp/data/rules/{5}/{6}.yaml"
     cmd         : "{2}"
     expect      : "{3}"
-</custom_item>'''.format(rule.title,rule.discussion.replace('"','\\"').rstrip(),rule.check.replace('"','\\"').rstrip(),rule.result_value,references,rule.rule_id.split("_")[0],rule.rule_id)
+</custom_item>'''.format(rule.title,rule.discussion.replace('"','\\"').rstrip(),rule.check.replace('"','\\"').rstrip(),rule.result_value,tenable_refs,rule.rule_id.split("_")[0],rule.rule_id)
     
     tenable = tenable + '''
       </then>
