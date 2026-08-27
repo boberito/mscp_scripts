@@ -6,8 +6,10 @@
 # pip install git+https://github.com/usnistgov/macos_security@main
 # ./generate_tenable.py <baseline.yaml>
 
+# in order to use custom rules - in the same directory as the script. Create a folder custom, and within that rules. You can drop your ODV or custom rules in there. 
+# they can be in folders with the different sections as they are in the main rules library or just flat within the custom folder.
+
 from mscp import RuleLibrary
-from mscp import Macsecurityrule
 from mscp import Baseline
 import argparse
 import sys
