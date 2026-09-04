@@ -17,7 +17,6 @@ import os
 import os.path
 import warnings
 from pathlib import Path
-
 from mscp.classes import baseline, references
 
 def validate_file(arg: str) -> Path | None:
@@ -171,7 +170,8 @@ def main():
     info        : "{1}"
     reference   : "{4}"
     see_also    : "https://github.com/usnistgov/macos_security/blob/main/src/mscp/data/rules/{5}/{6}.yaml"
-    cmd         : "{2}"
+    cmd         : "#!/bin/zsh
+{2}"
     expect      : "{3}"
 </custom_item>'''.format(rule.title,rule.discussion.replace('"','\\"').rstrip(),rule.check.replace('"','\\"').rstrip(),rule.result_value,tenable_refs,rule.rule_id.split("_")[0],rule.rule_id)
     
